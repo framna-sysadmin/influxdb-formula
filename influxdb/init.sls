@@ -1,5 +1,23 @@
-{% from "influxdb/map.jinja" import influxdb_settings with context %}
+# influxdb
+#
+# Meta-state to fully install influxdb.
 
-influxdb_install:
-  pkg.installed:
-    - name: influxdb
+include:
+  - influxdb.pkgrepo
+  - influxdb.install
+  - influxdb.config
+  - influxdb.service
+
+extend:
+  influxdb_service:
+    service:
+      - watch:
+        - file: influxdb_config
+      - require:
+        - file: influxdb_config
+  influxdb_config:
+    file:
+      - require:
+        - pkg: influxdb_install
+
+
