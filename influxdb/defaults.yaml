@@ -65,7 +65,7 @@ Ubuntu:
       pprof-enabled: False
       https-enabled: False
       https-certificate: '"/etc/ssl/influxdb.pem"'
-    graphite:
+    "[graphite]":
       enabled: False
     collectd:
       enabled: False
@@ -137,7 +137,7 @@ Debian:
       pprof-enabled: False
       https-enabled: False
       https-certificate: '"/etc/ssl/influxdb.pem"'
-    graphite:
+    "[graphite]":
       enabled: False
     collectd:
       enabled: False
@@ -209,7 +209,7 @@ CentOS:
       pprof-enabled: False
       https-enabled: False
       https-certificate: '"/etc/ssl/influxdb.pem"'
-    graphite:
+    "[graphite]":
       enabled: False
     collectd:
       enabled: False
@@ -281,7 +281,7 @@ RedHat:
       pprof-enabled: False
       https-enabled: False
       https-certificate: '"/etc/ssl/influxdb.pem"'
-    graphite:
+    "[graphite]":
       enabled: False
     collectd:
       enabled: False
