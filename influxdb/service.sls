@@ -1,7 +1,7 @@
 include:
   - influxdb.install
 
-influxdb_start:
+influxdb_service:
   service.running:
     - name: influxdb
     - enable: True
