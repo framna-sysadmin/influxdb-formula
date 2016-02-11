@@ -33,7 +33,7 @@ Ubuntu:
       dir: '"/var/lib/influxdb/hh"'
       max-size: 1073741824
       max-age: '"168h"'
-      retry-rate-limit: 0
+      retry-rate-limit: "0"
       retry-interval: '"1s"'
       retry-max-interval: '"1m"'
       purge-interval: '"1h"'
@@ -105,7 +105,7 @@ Debian:
       dir: '"/var/lib/influxdb/hh"'
       max-size: 1073741824
       max-age: '"168h"'
-      retry-rate-limit: 0
+      retry-rate-limit: "0"
       retry-interval: '"1s"'
       retry-max-interval: '"1m"'
       purge-interval: '"1h"'
@@ -177,7 +177,7 @@ CentOS:
       dir: '"/var/lib/influxdb/hh"'
       max-size: 1073741824
       max-age: '"168h"'
-      retry-rate-limit: 0
+      retry-rate-limit: "0"
       retry-interval: '"1s"'
       retry-max-interval: '"1m"'
       purge-interval: '"1h"'
@@ -249,7 +249,7 @@ RedHat:
       dir: '"/var/lib/influxdb/hh"'
       max-size: 1073741824
       max-age: '"168h"'
-      retry-rate-limit: 0
+      retry-rate-limit: "0"
       retry-interval: '"1s"'
       retry-max-interval: '"1m"'
       purge-interval: '"1h"'
