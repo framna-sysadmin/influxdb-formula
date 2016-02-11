@@ -1,5 +1,3 @@
-{% from "influxdb/map.jinja" import influxdb_settings with context %}
-
 include:
   - influxdb.install
 
