@@ -1,0 +1,18 @@
+# vim
+{% load_yaml as supported_sections %}
+- main
+- meta
+- data
+- hinted-handoff
+- cluster
+- retention
+- shard-precreation
+- monitor
+- admin
+- http
+- graphite
+- collectd
+- opentsdb
+- "[udp]"
+- "continuous_queries"
+{% endload %}
