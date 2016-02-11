@@ -1,13 +1,13 @@
-{% from "influxdb/map.jinja" import influxdb_settings with context %}
+{% from "influxdb/defaults.yaml" import rawmap with context %}
+{%- set influxdb = salt['grains.filter_by'](rawmap, grain='os', merge=salt['pillar.get']('influxdb:lookup')) %}
 
+{% if "config" in influxdb %}
 influxdb_config:
   file.managed:
-    - name: {{ influxdb_settings.config }}
-    - source: {{ influxdb_settings.tmpl.config }}
+    - name: {{ influxdb.config_file }}
+    - template: jinja
+    - source: salt://influxdb/files/influxdb.conf
     - user: root
     - group: root
-    - makedirs: True
-    - dir_mode: 755
     - mode: 644
-    - template: jinja
-
+{% endif %}

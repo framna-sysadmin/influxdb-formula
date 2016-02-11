@@ -1,62 +1,294 @@
-0_8:
-  influxdb:
-    conf:
-      bind-address: '0.0.0.0'
-      admin:
-        port: 8083
-      api:
-        port: 8086
-        read-timeout: '5s'
-      logging:
-        directory: '/var/log/influxdb'
-        level: 'info'
-      raft:
-        port: 8090
-      protobuf:
-        port: 8083
-    tmpl:
-      config: 'salt://influxdb/files/influxdb_0.8.config.toml.jinja'
-      sysvinit_script: 'salt://influxdb/files/influxdb_0.8.sysvinit.jinja'
-      logrotate: 'salt://influxdb/files/logrotate.conf.jinja'
-0_9:
-  influxdb:
-    conf:
-      bind_address: '0.0.0.0'
-      port: 8086
-      reporting_disabled: 'false'
-      authentication:
-        enabled: 'false'
-      admin:
-        enabled: 'true'
-        port: 8083
-      broker:
-        enabled: 'true'
-        dir: '/var/influxdb/raft'
-      collectd:
-        enabled: 'false'
-      data:
-        dir: '/var/influxdb/db'
-        enabled: 'true'
-        retention_auto_create: 'true'
-        retention_check_enabled: 'true'
-        retention_check_period: '10m'
-      initialization:
-        join_urls: ''
-      logging:
-        directory: '/var/log/influxdb'
-        file: 'influxd.log'
-        write_tracing: 'false'
-        raft_tracing: 'false'
-      opentsdb:
-        enabled: 'false'
-      snapshot:
-        bind_address: '127.0.0.1'
-        enabled: 'true'
-        port: 8087
-      udp:
-        enabled: 'false'
-    tmpl:
-      config: 'salt://influxdb/files/influxdb_0.9.config.toml.jinja'
-      etc_default: 'salt://influxdb/files/influxdb_0.9.etc_default'
-      sysvinit_script: 'salt://influxdb/files/influxdb_0.9.sysvinit.jinja'
-      logrotate: 'salt://influxdb/files/logrotate.conf.jinja'
+# vim: sts=2 ts=2 sw=2 et ai
+#
+# SET ALL PARAMS IN CONFIG SECTION USING UNDERSCORE, NOT HYPHEN
+# so that it works correctly
+{% load_yaml as rawmap %}
+Ubuntu:
+  config_file: /etc/influxdb/influxdb.conf
+  config:
+    main:
+      reporting-disabled: False
+    meta:
+      enabled: True
+      dir: '"/var/lib/influxdb/meta"'
+      bind-address: '":8808"'
+      retention-autocreate: True
+      election-timeout: '"1s"'
+      heartbeat-timeout: '"1s"'
+      leader-lease-timeout: '"1s"'
+      commit-timeout: '"50s"'
+      cluster-tracing: False
+    data:
+      enabled: True
+      dir: '"/var/lib/influxdb/data"'
+      max-wal-size: 104857600
+      wal-flush-interval: '"10m"'
+      wal-partition-flush-delay: '"2s"'
+      wal-dir: '"/var/lib/influxdb/wal"'
+      wal-logging-enabled: True
+      data-logging-enabled: True
+    hinted-handoff:
+      enabled: True
+      dir: '"/var/lib/influxdb/hh"'
+      max-size: 1073741824
+      max-age: '"168h"'
+      retry-rate-limit: 0
+      retry-interval: '"1s"'
+      retry-max-interval: '"1m"'
+      purge-interval: '"1h"'
+    cluster:
+      shard-writer-timeout: '"5s"'
+      write-timeout: '"10s"'
+    retention:
+      enabled: True
+      check-interval: '"30m"'
+    shard-precreation:
+      enabled: True
+      check-interval: '"10m"'
+      advance-period: '"30m"'
+    monitor:
+      store-enabled: True
+      store-database: '"_internal"'
+      store-interval: '"10s"'
+    admin:
+      enabled: True
+      bind-address: '":8083"'
+      https-enabled: False
+      https-certificate: '"/etc/ssl/influxdb.pem"'
+    http:
+      enabled: True
+      bind-address: '":8086"'
+      auth-enabled: False
+      log-enabled: True
+      write-tracing: False
+      pprof-enabled: False
+      https-enabled: False
+      https-certificate: '"/etc/ssl/influxdb.pem"'
+    graphite:
+      enabled: False
+    collectd:
+      enabled: False
+    opentsdb:
+      enabled: False
+    "[udp]":
+      enabled: False
+    "continuous_queries":
+      log-enabled: True
+      enabled: True
+Debian:
+  config_file: /etc/influxdb/influxdb.conf
+  config:
+    main:
+      reporting-disabled: False
+    meta:
+      enabled: True
+      dir: '"/var/lib/influxdb/meta"'
+      bind-address: '":8808"'
+      retention-autocreate: True
+      election-timeout: '"1s"'
+      heartbeat-timeout: '"1s"'
+      leader-lease-timeout: '"1s"'
+      commit-timeout: '"50s"'
+      cluster-tracing: False
+    data:
+      enabled: True
+      dir: '"/var/lib/influxdb/data"'
+      max-wal-size: 104857600
+      wal-flush-interval: '"10m"'
+      wal-partition-flush-delay: '"2s"'
+      wal-dir: '"/var/lib/influxdb/wal"'
+      wal-logging-enabled: True
+      data-logging-enabled: True
+    hinted-handoff:
+      enabled: True
+      dir: '"/var/lib/influxdb/hh"'
+      max-size: 1073741824
+      max-age: '"168h"'
+      retry-rate-limit: 0
+      retry-interval: '"1s"'
+      retry-max-interval: '"1m"'
+      purge-interval: '"1h"'
+    cluster:
+      shard-writer-timeout: '"5s"'
+      write-timeout: '"10s"'
+    retention:
+      enabled: True
+      check-interval: '"30m"'
+    shard-precreation:
+      enabled: True
+      check-interval: '"10m"'
+      advance-period: '"30m"'
+    monitor:
+      store-enabled: True
+      store-database: '"_internal"'
+      store-interval: '"10s"'
+    admin:
+      enabled: True
+      bind-address: '":8083"'
+      https-enabled: False
+      https-certificate: '"/etc/ssl/influxdb.pem"'
+    http:
+      enabled: True
+      bind-address: '":8086"'
+      auth-enabled: False
+      log-enabled: True
+      write-tracing: False
+      pprof-enabled: False
+      https-enabled: False
+      https-certificate: '"/etc/ssl/influxdb.pem"'
+    graphite:
+      enabled: False
+    collectd:
+      enabled: False
+    opentsdb:
+      enabled: False
+    "[udp]":
+      enabled: False
+    "continuous_queries":
+      log-enabled: True
+      enabled: True
+CentOS:
+  config_file: /etc/influxdb/influxdb.conf
+  config:
+    main:
+      reporting-disabled: False
+    meta:
+      enabled: True
+      dir: '"/var/lib/influxdb/meta"'
+      bind-address: '":8808"'
+      retention-autocreate: True
+      election-timeout: '"1s"'
+      heartbeat-timeout: '"1s"'
+      leader-lease-timeout: '"1s"'
+      commit-timeout: '"50s"'
+      cluster-tracing: False
+    data:
+      enabled: True
+      dir: '"/var/lib/influxdb/data"'
+      max-wal-size: 104857600
+      wal-flush-interval: '"10m"'
+      wal-partition-flush-delay: '"2s"'
+      wal-dir: '"/var/lib/influxdb/wal"'
+      wal-logging-enabled: True
+      data-logging-enabled: True
+    hinted-handoff:
+      enabled: True
+      dir: '"/var/lib/influxdb/hh"'
+      max-size: 1073741824
+      max-age: '"168h"'
+      retry-rate-limit: 0
+      retry-interval: '"1s"'
+      retry-max-interval: '"1m"'
+      purge-interval: '"1h"'
+    cluster:
+      shard-writer-timeout: '"5s"'
+      write-timeout: '"10s"'
+    retention:
+      enabled: True
+      check-interval: '"30m"'
+    shard-precreation:
+      enabled: True
+      check-interval: '"10m"'
+      advance-period: '"30m"'
+    monitor:
+      store-enabled: True
+      store-database: '"_internal"'
+      store-interval: '"10s"'
+    admin:
+      enabled: True
+      bind-address: '":8083"'
+      https-enabled: False
+      https-certificate: '"/etc/ssl/influxdb.pem"'
+    http:
+      enabled: True
+      bind-address: '":8086"'
+      auth-enabled: False
+      log-enabled: True
+      write-tracing: False
+      pprof-enabled: False
+      https-enabled: False
+      https-certificate: '"/etc/ssl/influxdb.pem"'
+    graphite:
+      enabled: False
+    collectd:
+      enabled: False
+    opentsdb:
+      enabled: False
+    "[udp]":
+      enabled: False
+    "continuous_queries":
+      log-enabled: True
+      enabled: True
+RedHat:
+  config_file: /etc/influxdb/influxdb.conf
+  config:
+    main:
+      reporting-disabled: False
+    meta:
+      enabled: True
+      dir: '"/var/lib/influxdb/meta"'
+      bind-address: '":8808"'
+      retention-autocreate: True
+      election-timeout: '"1s"'
+      heartbeat-timeout: '"1s"'
+      leader-lease-timeout: '"1s"'
+      commit-timeout: '"50s"'
+      cluster-tracing: False
+    data:
+      enabled: True
+      dir: '"/var/lib/influxdb/data"'
+      max-wal-size: 104857600
+      wal-flush-interval: '"10m"'
+      wal-partition-flush-delay: '"2s"'
+      wal-dir: '"/var/lib/influxdb/wal"'
+      wal-logging-enabled: True
+      data-logging-enabled: True
+    hinted-handoff:
+      enabled: True
+      dir: '"/var/lib/influxdb/hh"'
+      max-size: 1073741824
+      max-age: '"168h"'
+      retry-rate-limit: 0
+      retry-interval: '"1s"'
+      retry-max-interval: '"1m"'
+      purge-interval: '"1h"'
+    cluster:
+      shard-writer-timeout: '"5s"'
+      write-timeout: '"10s"'
+    retention:
+      enabled: True
+      check-interval: '"30m"'
+    shard-precreation:
+      enabled: True
+      check-interval: '"10m"'
+      advance-period: '"30m"'
+    monitor:
+      store-enabled: True
+      store-database: '"_internal"'
+      store-interval: '"10s"'
+    admin:
+      enabled: True
+      bind-address: '":8083"'
+      https-enabled: False
+      https-certificate: '"/etc/ssl/influxdb.pem"'
+    http:
+      enabled: True
+      bind-address: '":8086"'
+      auth-enabled: False
+      log-enabled: True
+      write-tracing: False
+      pprof-enabled: False
+      https-enabled: False
+      https-certificate: '"/etc/ssl/influxdb.pem"'
+    graphite:
+      enabled: False
+    collectd:
+      enabled: False
+    opentsdb:
+      enabled: False
+    "[udp]":
+      enabled: False
+    "continuous_queries":
+      log-enabled: True
+      enabled: True
+{% endload %}
