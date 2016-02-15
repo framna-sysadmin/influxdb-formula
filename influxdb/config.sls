@@ -1,5 +1,5 @@
 {% from "influxdb/defaults.yaml" import rawmap with context %}
-{%- set influxdb = salt['grains.filter_by'](rawmap, grain='os', merge=salt['pillar.get']('influxdb:lookup')) %}
+{%- set influxdb = salt['grains.filter_by'](rawmap, grain='os', merge=salt['pillar.get']('influxdb')) %}
 
 {% if "config" in influxdb %}
 influxdb_config:
