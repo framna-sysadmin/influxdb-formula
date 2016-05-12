@@ -12,7 +12,7 @@ Ubuntu:
     meta:
       enabled: True
       dir: '"/var/lib/influxdb/meta"'
-      bind-address: '":8808"'
+      bind-address: '":8088"'
       retention-autocreate: True
       election-timeout: '"1s"'
       heartbeat-timeout: '"1s"'
@@ -84,7 +84,7 @@ Debian:
     meta:
       enabled: True
       dir: '"/var/lib/influxdb/meta"'
-      bind-address: '":8808"'
+      bind-address: '":8088"'
       retention-autocreate: True
       election-timeout: '"1s"'
       heartbeat-timeout: '"1s"'
@@ -156,7 +156,7 @@ CentOS:
     meta:
       enabled: True
       dir: '"/var/lib/influxdb/meta"'
-      bind-address: '":8808"'
+      bind-address: '":8088"'
       retention-autocreate: True
       election-timeout: '"1s"'
       heartbeat-timeout: '"1s"'
@@ -228,7 +228,7 @@ RedHat:
     meta:
       enabled: True
       dir: '"/var/lib/influxdb/meta"'
-      bind-address: '":8808"'
+      bind-address: '":8088"'
       retention-autocreate: True
       election-timeout: '"1s"'
       heartbeat-timeout: '"1s"'
