@@ -26,7 +26,7 @@ Ubuntu:
       wal-partition-flush-delay: '"2s"'
       wal-dir: '"/var/lib/influxdb/wal"'
       wal-logging-enabled: True
-      data-logging-enabled: True
+      trace-logging-enabled: True
     hinted-handoff:
       enabled: True
       dir: '"/var/lib/influxdb/hh"'
@@ -36,7 +36,7 @@ Ubuntu:
       retry-interval: '"1s"'
       retry-max-interval: '"1m"'
       purge-interval: '"1h"'
-    cluster:
+    coordinator:
       shard-writer-timeout: '"5s"'
       write-timeout: '"10s"'
     retention:
@@ -66,9 +66,9 @@ Ubuntu:
       https-certificate: '"/etc/ssl/influxdb.pem"'
     "[graphite]":
       enabled: False
-    collectd:
+    "[collectd]":
       enabled: False
-    opentsdb:
+    "[opentsdb]":
       enabled: False
     "[udp]":
       enabled: False
@@ -98,7 +98,7 @@ Debian:
       wal-partition-flush-delay: '"2s"'
       wal-dir: '"/var/lib/influxdb/wal"'
       wal-logging-enabled: True
-      data-logging-enabled: True
+      trace-logging-enabled: True
     hinted-handoff:
       enabled: True
       dir: '"/var/lib/influxdb/hh"'
@@ -108,7 +108,7 @@ Debian:
       retry-interval: '"1s"'
       retry-max-interval: '"1m"'
       purge-interval: '"1h"'
-    cluster:
+    coordinator:
       shard-writer-timeout: '"5s"'
       write-timeout: '"10s"'
     retention:
@@ -138,9 +138,9 @@ Debian:
       https-certificate: '"/etc/ssl/influxdb.pem"'
     "[graphite]":
       enabled: False
-    collectd:
+    "[collectd]":
       enabled: False
-    opentsdb:
+    "[opentsdb]":
       enabled: False
     "[udp]":
       enabled: False
@@ -170,7 +170,7 @@ CentOS:
       wal-partition-flush-delay: '"2s"'
       wal-dir: '"/var/lib/influxdb/wal"'
       wal-logging-enabled: True
-      data-logging-enabled: True
+      trace-logging-enabled: True
     hinted-handoff:
       enabled: True
       dir: '"/var/lib/influxdb/hh"'
@@ -180,7 +180,7 @@ CentOS:
       retry-interval: '"1s"'
       retry-max-interval: '"1m"'
       purge-interval: '"1h"'
-    cluster:
+    coordinator:
       shard-writer-timeout: '"5s"'
       write-timeout: '"10s"'
     retention:
@@ -210,9 +210,9 @@ CentOS:
       https-certificate: '"/etc/ssl/influxdb.pem"'
     "[graphite]":
       enabled: False
-    collectd:
+    "[collectd]":
       enabled: False
-    opentsdb:
+    "[opentsdb]":
       enabled: False
     "[udp]":
       enabled: False
@@ -242,7 +242,7 @@ RedHat:
       wal-partition-flush-delay: '"2s"'
       wal-dir: '"/var/lib/influxdb/wal"'
       wal-logging-enabled: True
-      data-logging-enabled: True
+      trace-logging-enabled: True
     hinted-handoff:
       enabled: True
       dir: '"/var/lib/influxdb/hh"'
@@ -252,7 +252,7 @@ RedHat:
       retry-interval: '"1s"'
       retry-max-interval: '"1m"'
       purge-interval: '"1h"'
-    cluster:
+    coordinator:
       shard-writer-timeout: '"5s"'
       write-timeout: '"10s"'
     retention:
@@ -282,9 +282,9 @@ RedHat:
       https-certificate: '"/etc/ssl/influxdb.pem"'
     "[graphite]":
       enabled: False
-    collectd:
+    "[collectd]":
       enabled: False
-    opentsdb:
+    "[opentsdb]":
       enabled: False
     "[udp]":
       enabled: False
