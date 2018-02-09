@@ -7,6 +7,7 @@ include:
   - influxdb.install
   - influxdb.config
   - influxdb.service
+  - influxdb.users
 
 extend:
   influxdb_service:
