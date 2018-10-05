@@ -13,6 +13,13 @@ include:
 {% from "influxdb/defaults.yaml" import rawmap with context %}
 {%- set influxdb = salt['grains.filter_by'](rawmap, grain='os', merge=salt['pillar.get']('influxdb')) %}
 
+influxdb_wait:
+  module.run:
+    - name: test.sleep
+    - length: 5
+    - require:
+      - service: influxdb_service
+
 influxdb_reload:
   service.running:
     - name: influxdb
@@ -38,7 +45,7 @@ extend:
     influxdb_user:
       - require:
         - file: influxdb_initial_config
-        - service: influxdb_service
+        - module: influxdb_wait
       - require_in:
         - file: influxdb_config
 {% endfor %}
