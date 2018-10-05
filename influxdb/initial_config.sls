@@ -2,7 +2,7 @@
 {%- set influxdb = salt['grains.filter_by'](rawmap, grain='os', merge=salt['pillar.get']('influxdb')) %}
 
 {% if "config" in influxdb %}
-influxdb_config:
+influxdb_initial_config:
   file.managed:
     - name: {{ influxdb.config_file }}
     - template: jinja
@@ -11,5 +11,5 @@ influxdb_config:
     - group: root
     - mode: 644
     - context:
-        initialConfig: False
+        initialConfig: True
 {% endif %}
