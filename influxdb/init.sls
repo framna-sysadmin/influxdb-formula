@@ -7,6 +7,7 @@ include:
   - influxdb.install
   - influxdb.initial_config
   - influxdb.service
+  - influxdb.databases
   - influxdb.users
   - influxdb.config
 
@@ -39,6 +40,17 @@ extend:
     file:
       - require:
         - pkg: influxdb_install
+{% if "database" in influxdb %}
+{% for name in influxdb["database"] %}
+  influxdb_database_{{ name }}:
+    influxdb_database:
+      - require:
+        - file: influxdb_initial_config
+        - module: influxdb_wait
+      - require_in:
+        - file: influxdb_config
+{% endfor %}
+{% endif %}
 {% if "user" in influxdb %}
 {% for name,config in influxdb["user"].items() %}
   influxdb_user_{{ loop.index0 }}:
@@ -46,6 +58,11 @@ extend:
       - require:
         - file: influxdb_initial_config
         - module: influxdb_wait
+{% if "database" in influxdb %}
+{% for name in influxdb["database"] %}
+        - influxdb_database: influxdb_database_{{ name }}
+{% endfor %}
+{% endif %}
       - require_in:
         - file: influxdb_config
 {% endfor %}
