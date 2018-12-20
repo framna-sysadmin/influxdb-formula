@@ -2,9 +2,9 @@
 {%- set influxdb = salt['grains.filter_by'](rawmap, grain='os', merge=salt['pillar.get']('influxdb')) %}
 
 {% if "database" in influxdb %}
-{% for name in influxdb["database"] %}
-influxdb_database_{{ name }}:
+{% for config in influxdb["database"] %}
+influxdb_database_{{ config['name'] }}:
   influxdb_database.present:
-    - name: {{ name }}
+    - name: {{ config['name'] }}
 {% endfor %}
 {% endif %}
