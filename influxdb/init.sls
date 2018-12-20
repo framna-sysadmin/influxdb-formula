@@ -41,8 +41,8 @@ extend:
       - require:
         - pkg: influxdb_install
 {% if "database" in influxdb %}
-{% for name in influxdb["database"] %}
-  influxdb_database_{{ name }}:
+{% for config in influxdb["database"] %}
+  influxdb_database_{{ config['name'] }}:
     influxdb_database:
       - require:
         - file: influxdb_initial_config
@@ -59,8 +59,8 @@ extend:
         - file: influxdb_initial_config
         - module: influxdb_wait
 {% if "database" in influxdb %}
-{% for name in influxdb["database"] %}
-        - influxdb_database: influxdb_database_{{ name }}
+{% for config in influxdb["database"] %}
+        - influxdb_database: influxdb_database_{{ config['name'] }}
 {% endfor %}
 {% endif %}
       - require_in:
