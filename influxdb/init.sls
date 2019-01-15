@@ -17,7 +17,7 @@ include:
 influxdb_wait:
   module.run:
     - name: test.sleep
-    - length: 5
+    - length: 10
     - require:
       - service: influxdb_service
 
