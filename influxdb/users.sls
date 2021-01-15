@@ -6,7 +6,7 @@
 influxdb_user_{{ loop.index0 }}:
   influxdb_user.present:
     - name: {{ name }}
-    - password: {{ config["password"] }}
+    - passwd: {{ config["password"] }}
 {% if "admin" in config %}
     - admin: {{ config["admin"] }}
 {% endif %}
