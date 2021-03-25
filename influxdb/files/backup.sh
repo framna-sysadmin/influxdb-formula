@@ -30,6 +30,12 @@ function report() {
 {%- endif %}
 }
 
+# s3fs manages to get stuck in odd ways. Before we access the mount point, best to remount to be sure
+if ! [ -z "$S3_DIR" ]; then
+  umount "$S3_DIR"
+  mount "$S3_DIR"
+fi
+
 if [ ! -d "$TARGET_DIR" ]; then
   mkdir -p "$TARGET_DIR"
 fi
@@ -43,12 +49,6 @@ if [ ! -d "$TARGET_DIR/base" ]; then
 else
   if [ $(date -d "-6 days" +%s) -ge $(date -r "$TARGET_DIR/base" +%s) ]; then
     if [ -e "$TARGET_DIR/base_new" ]; then
-      # if we use S3 remount it, just to be sure it didn't get stuck
-      if ! [ -z "$S3_DIR" ]; then
-        umount "$S3_DIR"
-        mount "$S3_DIR"
-      fi
-
       # cleanup incomplete full backup
       rm -rf "$TARGET_DIR/base_new"
     fi
