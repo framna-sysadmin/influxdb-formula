@@ -33,7 +33,14 @@ function report() {
 # s3fs manages to get stuck in odd ways. Before we access the mount point, best to remount to be sure
 if ! [ -z "$S3_DIR" ]; then
   umount "$S3_DIR"
-  mount "$S3_DIR"
+
+  if [ "$?" = 0 ]; then
+    mount "$S3_DIR"
+    if [ "$?" != 0 ]; then
+      report "incremental" "$TARGET_DIR/inc-$DATE_TODAY" 5
+      exit 5
+    fi
+  fi
 fi
 
 if [ ! -d "$TARGET_DIR" ]; then
@@ -66,10 +73,12 @@ else
     fi
 
     report "full" "$TARGET_DIR/base" $STATUS
-    exit 0
+    exit $STATUS
   fi
 
   influxd backup -portable -start $(date -u -d "yesterday 00:00" "+%Y-%m-%dT%H:%M:%SZ") "$TARGET_DIR/inc-$DATE_TODAY"
   STATUS=$?
   report "incremental" "$TARGET_DIR/inc-$DATE_TODAY" $STATUS
 fi
+
+exit $STATUS
