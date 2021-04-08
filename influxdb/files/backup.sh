@@ -35,7 +35,7 @@ if ! [ -z "$S3_DIR" ]; then
   umount "$S3_DIR"
 
   if [ "$?" = 0 ]; then
-    mount "$S3_DIR"
+    mount "$S3_DIR" || mountpoint "$S3_DIR"
     if [ "$?" != 0 ]; then
       report "incremental" "$TARGET_DIR/inc-$DATE_TODAY" 5
       exit 5
