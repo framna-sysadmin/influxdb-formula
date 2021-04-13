@@ -1,6 +1,7 @@
 #!/bin/bash
 START_TIME=$(date +"%s")
 S3_DIR="{{ config.s3_dir }}"
+S3_BUCKET="{{ config.s3_bucket }}"
 TARGET_DIR="{{ config.target_dir }}"
 
 DATE_TODAY=$(date --rfc-3339=date)
@@ -32,14 +33,11 @@ function report() {
 
 # s3fs manages to get stuck in odd ways. Before we access the mount point, best to remount to be sure
 if ! [ -z "$S3_DIR" ]; then
-  umount "$S3_DIR"
+  mount -o remount "$S3_BUCKET" "$S3_DIR"
 
-  if [ "$?" = 0 ]; then
-    mount "$S3_DIR" || mountpoint "$S3_DIR"
-    if [ "$?" != 0 ]; then
-      report "incremental" "$TARGET_DIR/inc-$DATE_TODAY" 5
-      exit 5
-    fi
+  if [ "$?" != 0 ]; then
+    report "incremental" "$TARGET_DIR/inc-$DATE_TODAY" 5
+    exit 5
   fi
 fi
 
