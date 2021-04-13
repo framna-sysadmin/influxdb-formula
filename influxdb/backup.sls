@@ -24,5 +24,12 @@ influxdb-script-backup-cronjob:
   cron.present:
     - name: /usr/local/bin/influxdb_backup &>> {{ influxdb.backup.log_dir }}/influxdb.log
     - identifier: influxdb_backup
+    - minute: 0
+    - hour: 4
+
+influxdb-script-backup-cronjob-daily:
+  cron.absent:
+    - name: /usr/local/bin/influxdb_backup &>> {{ influxdb.backup.log_dir }}/influxdb.log
+    - identifier: influxdb_backup
     - special: '@daily'
 {% endif %}
