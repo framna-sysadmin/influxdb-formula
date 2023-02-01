@@ -1,8 +1,8 @@
 influxdata-pkgrepo:
   pkgrepo.managed:
     - name: influxdata
-    - humanname: InfluxData repo for RHEL/CentOS $releasever
-    - baseurl: https://repos.influxdata.com/rhel/$releasever/$basearch/stable
+    - humanname: InfluxData Repository - Stable
+    - baseurl: https://repos.influxdata.com/stable/$basearch/main
     - enabled: 1
     - gpgcheck: 1
-    - gpgkey: https://repos.influxdata.com/influxdb.key
+    - gpgkey: https://repos.influxdata.com/influxdata-archive_compat.key
