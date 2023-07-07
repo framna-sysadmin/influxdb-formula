@@ -1,5 +1,5 @@
 {% from "influxdb/defaults.yaml" import rawmap with context %}
-{%- set influxdb = salt['grains.filter_by'](rawmap, grain='os', merge=salt['pillar.get']('influxdb')) %}
+{%- set influxdb = salt['grains.filter_by'](rawmap, grain='os_family', merge=salt['pillar.get']('influxdb')) %}
 
 {% if "config" in influxdb %}
 influxdb_config:
@@ -9,7 +9,7 @@ influxdb_config:
     - source: salt://influxdb/files/influxdb.conf
     - user: root
     - group: root
-    - mode: 644
+    - mode: '0644'
     - context:
         initialConfig: False
 {% endif %}
