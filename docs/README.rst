@@ -71,6 +71,16 @@ that minor version. You can set ``influxdb:no_conf_defaults`` in your pillar if
 you want to completely specify the configuration yourself, without falling back
 to defaults.
 
+``influxdb.repo``
+^^^^^^^^^^^^^^^^^^^^
+Enable the official InfluxData package repository in order to always
+benefit from the latest version. This state currently only works on Debian and RHEL.
+
+``influxdb.repo.absent``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Undo the effects of ``influxdb.repo``.
+
+
 Testing
 -------
 
