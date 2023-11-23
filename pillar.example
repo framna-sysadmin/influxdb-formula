@@ -86,5 +86,20 @@ influxdb:
     config: 'salt://influxdb/files/influxdb.config.jinja'
     etc_default: 'salt://influxdb/files/influxdb.etc_default'
     logrotate: 'salt://influxdb/files/logrotate.conf.jinja'
-
+  bucket:
+    - name: test_short
+      retention_policy: 16w
+    - name: test_long
+      retention_policy: 106w
+    - name: old_format
+      mapping:
+        - db: old_format
+          rp: autogen
+  database:
+    - name: test
+      retention_policies:
+        - name: 15d
+          duration: 15d
+        - name: 2y
+          duration: 106w
 # vi: set ft=yaml :
