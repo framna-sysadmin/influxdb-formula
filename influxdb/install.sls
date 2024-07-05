@@ -1,4 +1,4 @@
-{% from "influxdb/defaults.yaml" import rawmap with context %}
+{% from "influxdb/defaults.yaml.jinja2" import rawmap with context %}
 {%- set influxdb = salt['grains.filter_by'](rawmap, grain='os_family', merge=salt['pillar.get']('influxdb')) %}
 
 influxdb_install:
