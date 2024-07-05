@@ -11,7 +11,7 @@ include:
   - influxdb.users
   - influxdb.config
 
-{% from "influxdb/defaults.yaml" import rawmap with context %}
+{% from "influxdb/defaults.yaml.jinja2" import rawmap with context %}
 {%- set influxdb = salt['grains.filter_by'](rawmap, grain='os', merge=salt['pillar.get']('influxdb')) %}
 
 influxdb_wait:

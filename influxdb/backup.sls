@@ -1,4 +1,4 @@
-{% from "influxdb/defaults.yaml" import rawmap with context %}
+{% from "influxdb/defaults.yaml.jinja2" import rawmap with context %}
 {%- set influxdb = salt['grains.filter_by'](rawmap, grain='os', merge=salt['pillar.get']('influxdb')) %}
 
 {% if 'backup' in influxdb %}
@@ -8,7 +8,7 @@ influxdb-script-backup:
     - user: root
     - group: root
     - mode: 755
-    - source: salt://influxdb/files/backup.sh
+    - source: salt://influxdb/files/backup.sh.jinja2
     - template: jinja
     - defaults:
         config: {{ influxdb.backup }}
