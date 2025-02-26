@@ -6,7 +6,7 @@
 -#}
 {%- from "influxdb/defaults.yaml.jinja2" import rawmap with context -%}
 {%- from "influxdb/supported_sections.yaml.jinja2" import supported_sections with context -%}
-{%- set datamap = salt['grains.filter_by'](rawmap, grain='os', merge=salt['pillar.get']('influxdb')) -%}
+{%- set datamap = salt['grains.filter_by'](rawmap, grain='os_family', merge=salt['pillar.get']('influxdb')) -%}
 {#-
 ===== COMBINE DATA =====
 -#}
