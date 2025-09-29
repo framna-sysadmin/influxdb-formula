@@ -7,7 +7,7 @@ influxdb-script-backup:
     - name: /usr/local/bin/influxdb_backup
     - user: root
     - group: root
-    - mode: 755
+    - mode: '0755'
     - source: salt://influxdb/files/backup.sh.jinja2
     - template: jinja
     - defaults:
@@ -18,7 +18,7 @@ influxdb-script-backup-logdir:
     - name: {{ influxdb.backup.log_dir }}
     - user: root
     - group: root
-    - mode: 755
+    - mode: '0755'
 
 influxdb-script-backup-cronjob:
   cron.present:
