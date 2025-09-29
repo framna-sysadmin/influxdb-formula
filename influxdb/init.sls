@@ -1,19 +1,23 @@
 # influxdb
 #
 # Meta-state to fully install influxdb.
+{% from "influxdb/defaults.yaml.jinja2" import rawmap with context %}
+{%- set influxdb = salt['grains.filter_by'](rawmap, grain='os_family', merge=salt['pillar.get']('influxdb')) %}
 
 include:
+{% if "remote" not in influxdb %}
   - influxdb.pkgrepo
   - influxdb.install
   - influxdb.initial_config
   - influxdb.service
+{% endif %}
   - influxdb.databases
   - influxdb.users
+{% if "remote" not in influxdb %}
   - influxdb.config
+{% endif %}
 
-{% from "influxdb/defaults.yaml.jinja2" import rawmap with context %}
-{%- set influxdb = salt['grains.filter_by'](rawmap, grain='os_family', merge=salt['pillar.get']('influxdb')) %}
-
+{% if "remote" not in influxdb %}
 influxdb_wait:
   module.run:
     - name: test.sleep
@@ -66,4 +70,5 @@ extend:
       - require_in:
         - file: influxdb_config
 {% endfor %}
+{% endif %}
 {% endif %}
