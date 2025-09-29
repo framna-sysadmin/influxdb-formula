@@ -24,7 +24,7 @@ get_user_{{ loop.index0 }}:
     - status: 200
     - method: GET
     - header_dict:
-        Authorization: Token {{ infuxdb['user']['admin']['token'] }}
+        Authorization: Token {{ influxdb['user']['admin']['token'] }}
 
 create_user_{{ loop.index0 }}:
   http.query:
@@ -33,7 +33,7 @@ create_user_{{ loop.index0 }}:
     - method: POST
     - data: '{"name": "{{ name }}"}'
     - header_dict:
-        Authorization: Token {{ infuxdb['user']['admin']['token'] }}
+        Authorization: Token {{ influxdb['user']['admin']['token'] }}
     - onfail:
         - http: get_user_{{ loop.index0 }}
 
@@ -45,7 +45,7 @@ set_password_{{ loop.index0 }}:
     - method: POST
     - data: '{"password": "{{ config["password"] }}"}'
     - header_dict:
-        Authorization: Token {{ infuxdb['user']['admin']['token'] }}
+        Authorization: Token {{ influxdb['user']['admin']['token'] }}
 {% endif %}
 
 {% endfor %}
