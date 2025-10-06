@@ -4,6 +4,10 @@
 jq:
   pkg.installed
 
+{% if "remote" in influxdb %}
+{%- set base_url = "https://" ~ influxdb['remote']['host'] ~ ":" ~ influxdb['remote']['port'] %}
+{% endif %}
+
 {%- if "bucket" in influxdb %}
 {%- for config in influxdb["bucket"] %}
 {% if "remote" not in influxdb %}
@@ -19,32 +23,33 @@ influxdb_bucket_{{ config['name'] }}:
       - pkg: jq
 {%- set bucket = salt['cmd.shell']("influx bucket list --json | jq -r '.[] | select(.name == \"" + config['name'] + "\").id'") %}
 {% else %}
+{%- set orgID = salt['cmd.shell']("curl -s -f -H'Authorization: Token " ~ influxdb['user']['admin']['token'] ~ "' '" ~ base_url ~ "/api/v2/orgs' | jq -r '.orgs[0].id'") %}
+
 get_bucket_{{ config['name'] }}:
   http.query:
-    - name: 'https://{{ influxdb['remote']['host'] }}/api/v2/buckets/{{ config['name'] }}'
+    - name: '{{ base_url }}/api/v2/buckets?orgId={{ orgID }}&name={{ config['name'] }}'
     - status: 200
     - method: GET
     - header_dict:
         Authorization: Token {{ influxdb['user']['admin']['token'] }}
 
 {%- set bucket_data = {
-  name: config['name'],
-  description: config['description'] | default('A bucket for ' + config['name']),
-  orgID: config['orgID'],
-  retentionRules: [],
-  rp: config['retention_policy']
+  'name':           config['name'],
+  'description':    config['description'] | default('A bucket for ' + config['name']),
+  'orgID':          orgID,
+  'rp':             config['retention_policy'] | default('0'),
 } %}
 create_bucket_{{ config['name'] }}:
   http.query:
-    - name: 'https://{{ influxdb['remote']['host'] }}/api/v2/buckets'
-    - status: 200
+    - name: '{{ base_url }}/api/v2/buckets'
+    - status: 201
     - method: POST
     - data: '{{ bucket_data | tojson }}'
     - header_dict:
         Authorization: Token {{ influxdb['user']['admin']['token'] }}
     - onfail:
         - http: get_bucket_{{ config['name'] }}
-{%- set bucket = salt['cmd.shell']("curl -s -f -H'Authorization: Token {{ influxdb['user']['admin']['token'] }}' https://{{ influxdb['remote']['host'] }}/api/v2/buckets | jq -r '.[] | select(.name == \"" + config['name'] + "\").id'") %}
+{%- set bucket = salt['cmd.shell']("curl -s -f -H'Authorization: Token " ~ influxdb['user']['admin']['token'] ~ "' '" ~ base_url ~ "/api/v2/buckets' | jq -r '.buckets[] | select(.name == \"" + config['name'] + "\").id'") %}
 {% endif %}
 
 {%- if 'mapping' in config and bucket %}
@@ -61,10 +66,30 @@ influxdb_bucket_{{ config['name'] }}_mapping_{{ dbrp_config['db'] }}/{{ dbrp_con
     - require:
       - cmd: influxdb_bucket_{{ config['name'] }}
 {%- else %}
-influxdb_bucket_{{ config['name'] }}_mapping_{{ dbrp_config['db'] }}/{{ dbrp_config['rp'] }}:
-  cmd.run:
-    - name: >
-        echo "{{ bucket }}"
+get_bucket_{{ config['name'] }}_mapping_{{ dbrp_config['db'] }}/{{ dbrp_config['rp'] }}:
+  http.query:
+    - name: '{{ base_url }}/api/v2/dbrps?orgID={{ orgID }}&bucketID={{ bucket }}&db={{ dbrp_config['db'] }}&rp={{ dbrp_config['rp'] }}'
+    - status: 200
+    - method: GET
+    - header_dict:
+        Authorization: Token {{ influxdb['user']['admin']['token'] }}
+
+{%- set dbrp_data = {
+  'bucketID':         bucket,
+  'database':         dbrp_config['db'],
+  'retention_policy': dbrp_config['rp'] | default('autogen'),
+  'orgID':            orgID,
+} %}
+create_bucket_{{ config['name'] }}_mapping_{{ dbrp_config['db'] }}/{{ dbrp_config['rp'] }}:
+  http.query:
+    - name: '{{ base_url }}/api/v2/dbrps'
+    - status: 201
+    - method: POST
+    - data: '{{ dbrp_data | tojson }}'
+    - header_dict:
+        Authorization: Token {{ influxdb['user']['admin']['token'] }}
+    - onfail:
+        - http: get_bucket_{{ config['name'] }}_mapping_{{ dbrp_config['db'] }}/{{ dbrp_config['rp'] }}
 {%- endif %}
 {%- endfor %}
 {%- endif %}
