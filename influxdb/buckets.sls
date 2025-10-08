@@ -49,7 +49,7 @@ create_bucket_{{ config['name'] }}:
         Authorization: Token {{ influxdb['user']['admin']['token'] }}
     - onfail:
         - http: get_bucket_{{ config['name'] }}
-{%- set bucket = salt['cmd.shell']("curl -s -f -H'Authorization: Token " ~ influxdb['user']['admin']['token'] ~ "' '" ~ base_url ~ "/api/v2/buckets' | jq -r '.buckets[] | select(.name == \"" + config['name'] + "\").id'") %}
+{%- set bucket = salt['cmd.shell']("curl -s -f -H'Authorization: Token " ~ influxdb['user']['admin']['token'] ~ "' '" ~ base_url ~ "/api/v2/buckets?name=" ~ config['name'] ~ "' | jq -r '.buckets[0].id'") %}
 {% endif %}
 
 {%- if 'mapping' in config and bucket %}
