@@ -24,8 +24,10 @@ get_user_{{ name }}:
     - name: '{{ base_url }}/api/v2/users/?name={{ name }}'
     - status: 200
     - method: GET
-    - header_dict:
-        Authorization: Token {{ influxdb['user']['admin']['token'] }}
+    - username: 'admin'
+    - password: '{{ influxdb['user']['admin']['token'] }}'
+    # - header_dict:
+    #     Authorization: Token {{ influxdb['user']['admin']['token'] }}
 
 create_user_{{ name }}:
   http.query:
@@ -33,12 +35,14 @@ create_user_{{ name }}:
     - status: 201
     - method: POST
     - data: '{"name": "{{ name }}"}'
-    - header_dict:
-        Authorization: Token {{ influxdb['user']['admin']['token'] }}
+    - username: 'admin'
+    - password: '{{ influxdb['user']['admin']['token'] }}'
+    # - header_dict:
+    #     Authorization: Token {{ influxdb['user']['admin']['token'] }}
     - onfail:
         - http: get_user_{{ name }}
 
-{%- set id = salt['cmd.shell']("curl -s -f -H'Authorization: Token " ~ influxdb['user']['admin']['token'] ~ "' '" ~ base_url ~ "/api/v2/users?name=" ~ name ~ "' | jq -r '.users[0].id'") %}
+{%- set id = salt['cmd.shell']("curl -s -f -u'admin:" ~ influxdb['user']['admin']['token'] ~ "' '" ~ base_url ~ "/api/v2/users?name=" ~ name ~ "' | jq -r '.users[0].id'") %}
 {% if "password" in config %}
 set_password_{{ name }}:
   http.query:
@@ -46,8 +50,10 @@ set_password_{{ name }}:
     - status: 204
     - method: POST
     - data: '{"password": "{{ config["password"] }}"}'
-    - header_dict:
-        Authorization: Token {{ influxdb['user']['admin']['token'] }}
+    - username: 'admin'
+    - password: '{{ influxdb['user']['admin']['token'] }}'
+    # - header_dict:
+    #     Authorization: Token {{ influxdb['user']['admin']['token'] }}
 {% endif %}
 
 {% if "grants" in config %}
@@ -60,8 +66,10 @@ check_grant_user_{{ name }}_to_{{ bucket }}:
     - method: GET
     - match: '"{{ name }}"'
     - match_type: string
-    - header_dict:
-        Authorization: Token {{ influxdb['user']['admin']['token'] }}
+    - username: 'admin'
+    - password: '{{ influxdb['user']['admin']['token'] }}'
+    # - header_dict:
+    #     Authorization: Token {{ influxdb['user']['admin']['token'] }}
 
 grant_user_{{ name }}_to_{{ bucket }}:
   http.query:
@@ -69,8 +77,10 @@ grant_user_{{ name }}_to_{{ bucket }}:
     - status: 201
     - method: POST
     - data: '{"name": "{{ name }}", "id": "{{ id }}"}'
-    - header_dict:
-        Authorization: Token {{ influxdb['user']['admin']['token'] }}
+    - username: 'admin'
+    - password: '{{ influxdb['user']['admin']['token'] }}'
+    # - header_dict:
+    #     Authorization: Token {{ influxdb['user']['admin']['token'] }}
     - onfail:
         - http: check_grant_user_{{ name }}_to_{{ bucket }}
 {%- endfor %}
