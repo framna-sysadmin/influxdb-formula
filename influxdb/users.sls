@@ -38,8 +38,8 @@ create_user_{{ name }}:
     - onfail:
         - http: get_user_{{ name }}
 
-{%- set orgID = salt['cmd.shell']("curl -s -f -H'Authorization: Token " ~ influxdb['user']['admin']['token'] ~ "' '" ~ base_url ~ "/api/v2/orgs' | jq -r '.orgs[0].id'") %}
-{%- set id = salt['cmd.shell']("curl -s -f -H'Authorization: Token " ~ influxdb['user']['admin']['token'] ~ "' '" ~ base_url ~ "/api/v2/users?name=" ~ name ~ "' | jq -r '.users[0].id'") %}
+{%- set orgID = salt['cmd.shell']("curl -s -f -H'Authorization: Token " ~ influxdb['user']['admin']['token'] ~ "' '" ~ base_url ~ "/api/v2/orgs' | jq -r '.orgs[0].id'") %} # noqa: 204
+{%- set id = salt['cmd.shell']("curl -s -f -H'Authorization: Token " ~ influxdb['user']['admin']['token'] ~ "' '" ~ base_url ~ "/api/v2/users?name=" ~ name ~ "' | jq -r '.users[0].id'") %} # noqa: 204
 {%- if "admin" in config and config["admin"] == True %}
 check_{{ name }}_admin_in_org:
   http.query:
@@ -97,8 +97,9 @@ set_password_{{ name }}:
 {%- endif %}
 
 {%- if "grants" in config %}
+{%- set permissions = [] %}
 {%- for bucket,access in config['grants'].items() %}
-{%- set bucketID = salt['cmd.shell']("curl -s -f -H'Authorization: Token " ~ influxdb['user']['admin']['token'] ~ "' '" ~ base_url ~ "/api/v2/buckets?name=" ~ bucket ~ "' | jq -r '.buckets[0].id'") %}
+{%- set bucketID = salt['cmd.shell']("curl -s -f -H'Authorization: Token " ~ influxdb['user']['admin']['token'] ~ "' '" ~ base_url ~ "/api/v2/buckets?name=" ~ bucket ~ "' | jq -r '.buckets[0].id'") %} # noqa: 204
 
 check_grant_user_{{ name }}_to_{{ bucket }}:
   http.query:
@@ -121,61 +122,69 @@ grant_user_{{ name }}_to_{{ bucket }}:
     - onfail:
         - http: check_grant_user_{{ name }}_to_{{ bucket }}
 
-{%- set token = '-'.join([name, access, bucket]) %}
-{%- set all_permissions = [{
-    'action': 'read',
-    'resource': {
-      'id': bucketID,
-      'orgID': orgID,
-      'type': "buckets"
-    }
-  },{
-    'action': 'write',
-    'resource': {
-      'id': bucketID,
-      'orgID': orgID,
-      'type': "buckets"
-    }
-  }] %}
-{%- set base_permissions = [{
-    'action': access,
-    'resource': {
-      'id': bucketID,
-      'orgID': orgID,
-      'type': "buckets"
-    }
-  }] %}
-{%- set auth_data = {
-  'token': token,
-  'description': 'Grant ' ~ name ~ ' ' ~ access ~ ' access to bucket ' ~ bucket,
+{%- if access == 'all' %}
+  {%- set _ = permissions.append({
+      'action': 'read',
+      'resource': {
+        'id': bucketID,
+        'orgID': orgID,
+        'type': "buckets"
+      }
+    })
+  %}
+  {%- set _ = permissions.append({
+      'action': 'write',
+      'resource': {
+        'id': bucketID,
+        'orgID': orgID,
+        'type': "buckets"
+      }
+    })
+  %}
+{%- else %}
+  {%- set _ = permissions.append({
+      'action': access,
+      'resource': {
+        'id': bucketID,
+        'orgID': orgID,
+        'type': "buckets"
+      }
+    })
+  %}
+{%- endif %}
+{%- endfor %}
+
+{%- set legacy_auth_data = {
+  'token': name ~ '-legacy',
+  'description': 'Grant ' ~ name ~ ' legacy access to buckets',
   'orgID': orgID,
   'userID': id,
-  'permissions': all_permissions if access == 'all' else base_permissions
+  'permissions': permissions
 } %}
 
-check_auth_user_{{ name }}_to_{{ bucket }}:
+check_auth_user_{{ name }}_legacy:
   http.query:
-    - name: '{{ base_url }}/private/legacy/authorizations?token={{ token }}'
+    - name: '{{ base_url }}/private/legacy/authorizations?token={{ name }}-legacy'
     - status: 200
     - method: GET
-    - match: '"{{ token }}"'
+    - match: '"{{ legacy_auth_data.token }}"'
     - match_type: string
     - header_dict:
         Authorization: Token {{ influxdb['user']['admin']['token'] }}
 
-auth_user_{{ name }}_to_{{ bucket }}:
+auth_user_{{ name }}_legacy:
   http.query:
     - name: '{{ base_url }}/private/legacy/authorizations'
     - status: 201
     - method: POST
-    - data: '{{ auth_data | tojson }}'
+    - data: '{{ legacy_auth_data | tojson }}'
     - header_dict:
         Authorization: Token {{ influxdb['user']['admin']['token'] }}
     - onfail:
-        - http: check_auth_user_{{ name }}_to_{{ bucket }}
+        - http: check_auth_user_{{ name }}_legacy
 
-{%- set authID = salt['cmd.shell']("curl -s -f -H'Authorization: Token " ~ influxdb['user']['admin']['token'] ~ "' '" ~ base_url ~ "/private/legacy/authorizations?token=" ~ token ~ "' | jq -r '.authorizations[0].id'") %}
-password_auth_user_{{ name }}_to_{{ bucket }}:
+{%- set authID = salt['cmd.shell']("curl -s -f -H'Authorization: Token " ~ influxdb['user']['admin']['token'] ~ "' '" ~ base_url ~ "/private/legacy/authorizations?token=" ~ legacy_auth_data.token ~ "' | jq -r '.authorizations[0].id'") %} # noqa: 204
+password_auth_user_{{ name }}_legacy:
   http.query:
     - name: '{{ base_url }}/private/legacy/authorizations/{{ authID }}/password'
     - status: 204
@@ -184,7 +193,33 @@ password_auth_user_{{ name }}_to_{{ bucket }}:
     - header_dict:
         Authorization: Token {{ influxdb['user']['admin']['token'] }}
 
-{%- endfor %}
+{%- set auth_data = {
+  'token': name,
+  'description': 'Grant ' ~ name ~ ' access to buckets',
+  'orgID': orgID,
+  'userID': id,
+  'permissions': permissions
+} %}
+check_auth_user_{{ name }}_v2:
+  http.query:
+    - name: '{{ base_url }}/api/v2/authorizations?user={{ name }}'
+    - status: 200
+    - method: GET
+    - match: '"{{ auth_data.token }}"'
+    - match_type: string
+    - header_dict:
+        Authorization: Token {{ influxdb['user']['admin']['token'] }}
+
+auth_user_{{ name }}_v2:
+  http.query:
+    - name: '{{ base_url }}/api/v2/authorizations'
+    - status: 201
+    - method: POST
+    - data: '{{ auth_data | tojson }}'
+    - header_dict:
+        Authorization: Token {{ influxdb['user']['admin']['token'] }}
+    - onfail:
+        - http: check_auth_user_{{ name }}_v2
 {%- endif %}
 
 {%- endfor %}
