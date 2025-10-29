@@ -28,6 +28,8 @@ influxdb_bucket_{{ config['name'] }}:
 get_bucket_{{ config['name'] }}:
   http.query:
     - name: '{{ base_url }}/api/v2/buckets?orgId={{ orgID }}&name={{ config['name'] }}'
+    - match: '"{{ config.name }}"'
+    - match_type: string
     - status: 200
     - method: GET
     - header_dict:
@@ -69,6 +71,8 @@ influxdb_bucket_{{ config['name'] }}_mapping_{{ dbrp_config['db'] }}/{{ dbrp_con
 get_bucket_{{ config['name'] }}_mapping_{{ dbrp_config['db'] }}/{{ dbrp_config['rp'] }}:
   http.query:
     - name: '{{ base_url }}/api/v2/dbrps?orgID={{ orgID }}&bucketID={{ bucket }}&db={{ dbrp_config['db'] }}&rp={{ dbrp_config['rp'] }}'
+    - match: '"{{ dbrp_config.rp }}"'
+    - match_type: string
     - status: 200
     - method: GET
     - header_dict:
