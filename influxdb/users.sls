@@ -22,6 +22,8 @@ influxdb_user_{{ name }}:
 get_user_{{ name }}:
   http.query:
     - name: '{{ base_url }}/api/v2/users/?name={{ name }}'
+    - match: '"{{ name }}"'
+    - match_type: string
     - status: 200
     - method: GET
     - header_dict:
