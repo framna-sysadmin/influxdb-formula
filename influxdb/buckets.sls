@@ -58,12 +58,18 @@ create_bucket_{{ config['name'] }}:
 {%- for dbrp_config in config['mapping'] %}
 {# can't use JQ since the output is two separated JSON objects #}
 {% if "remote" not in influxdb %}
+{% if dbrp_config['default'] == true %}
+{%- set dbrp_default = "--default" %}
+{% else %}
+{%- set dbrp_default = "" %}
+{% endif %}
 influxdb_bucket_{{ config['name'] }}_mapping_{{ dbrp_config['db'] }}/{{ dbrp_config['rp'] }}:
   cmd.run:
     - name: >
         influx v1 dbrp create --bucket-id "{{ bucket }}" \
                               --db "{{ dbrp_config['db'] }}" \
-                              --rp "{{ dbrp_config['rp'] | default('autogen') }}"
+                              --rp "{{ dbrp_config['rp'] | default('autogen') }}" \
+                              {{ dbrp_default }}
     - unless: influx v1 dbrp list --db "{{ dbrp_config['db'] }}" --rp "{{ dbrp_config['rp'] }}" | grep "{{ dbrp_config['db'] }}"
     - require:
       - cmd: influxdb_bucket_{{ config['name'] }}
@@ -82,6 +88,7 @@ get_bucket_{{ config['name'] }}_mapping_{{ dbrp_config['db'] }}/{{ dbrp_config['
   'bucketID':         bucket,
   'database':         dbrp_config['db'],
   'retention_policy': dbrp_config['rp'] | default('autogen'),
+  'default':          dbrp_config['default'],
   'orgID':            orgID,
 } %}
 create_bucket_{{ config['name'] }}_mapping_{{ dbrp_config['db'] }}/{{ dbrp_config['rp'] }}:
