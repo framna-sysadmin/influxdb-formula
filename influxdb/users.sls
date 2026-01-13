@@ -101,12 +101,13 @@ set_password_{{ name }}:
 {%- if "grants" in config %}
 {%- set permissions = [] %}
 {%- for bucket,access in config['grants'].items() %}
-check_bucket_{{ bucket }}_exists:
+
+check_for_{{ name }}_if_bucket_{{ bucket }}_exists:
   http.query:
-    - name: '{{ base_url }}/api/v2/buckets?name=' ~ bucket
+    - name: '{{ base_url }}/api/v2/buckets?name={{ bucket }}'
     - status: 200
     - method: GET
-    - match: '"{{ name }}"'
+    - match: '"{{ bucket }}"'
     - match_type: string
     - header_dict:
         Authorization: Token {{ influxdb['user']['admin']['token'] }}
@@ -122,8 +123,6 @@ check_grant_user_{{ name }}_to_{{ bucket }}:
     - match_type: string
     - header_dict:
         Authorization: Token {{ influxdb['user']['admin']['token'] }}
-    - require:
-        - http: check_bucket_{{ bucket }}_exists
 
 grant_user_{{ name }}_to_{{ bucket }}:
   http.query:
