@@ -185,8 +185,6 @@ check_auth_user_{{ name }}_legacy:
     - match_type: string
     - header_dict:
         Authorization: Token {{ influxdb['user']['admin']['token'] }}
-    - require:
-        - http: check_bucket_{{ bucket }}_exists
 
 auth_user_{{ name }}_legacy:
   http.query:
@@ -208,8 +206,6 @@ password_auth_user_{{ name }}_legacy:
     - data: '{"password": "{{ config["password"] }}"}'
     - header_dict:
         Authorization: Token {{ influxdb['user']['admin']['token'] }}
-    - require:
-        - http: check_bucket_{{ bucket }}_exists
 
 {%- set auth_data = {
   'token': name,
