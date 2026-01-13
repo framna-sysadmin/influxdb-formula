@@ -101,6 +101,16 @@ set_password_{{ name }}:
 {%- if "grants" in config %}
 {%- set permissions = [] %}
 {%- for bucket,access in config['grants'].items() %}
+check_bucket_{{ bucket }}_exists:
+  http.query:
+    - name: '{{ base_url }}/api/v2/buckets?name=' ~ bucket
+    - status: 200
+    - method: GET
+    - match: '"{{ name }}"'
+    - match_type: string
+    - header_dict:
+        Authorization: Token {{ influxdb['user']['admin']['token'] }}
+
 {%- set bucketID = salt['cmd.shell']("curl -s -f -H'Authorization: Token " ~ influxdb['user']['admin']['token'] ~ "' '" ~ base_url ~ "/api/v2/buckets?name=" ~ bucket ~ "' | jq -r '.buckets[0].id'") %} # noqa: 204
 
 check_grant_user_{{ name }}_to_{{ bucket }}:
@@ -112,6 +122,8 @@ check_grant_user_{{ name }}_to_{{ bucket }}:
     - match_type: string
     - header_dict:
         Authorization: Token {{ influxdb['user']['admin']['token'] }}
+    - require:
+        - http: check_bucket_{{ bucket }}_exists
 
 grant_user_{{ name }}_to_{{ bucket }}:
   http.query:
@@ -173,6 +185,8 @@ check_auth_user_{{ name }}_legacy:
     - match_type: string
     - header_dict:
         Authorization: Token {{ influxdb['user']['admin']['token'] }}
+    - require:
+        - http: check_bucket_{{ bucket }}_exists
 
 auth_user_{{ name }}_legacy:
   http.query:
@@ -194,6 +208,8 @@ password_auth_user_{{ name }}_legacy:
     - data: '{"password": "{{ config["password"] }}"}'
     - header_dict:
         Authorization: Token {{ influxdb['user']['admin']['token'] }}
+    - require:
+        - http: check_bucket_{{ bucket }}_exists
 
 {%- set auth_data = {
   'token': name,
